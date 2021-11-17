@@ -1,82 +1,107 @@
-export enum PokemonType {
-	NORMAL = "Normal",
-	FIRE = "Fire",
-	WATER = "Water",
-	ELECTRIC = "Electric",
-	GRASS = "Grass",
-	ICE = "Ice",
-	FIGHTING = "Fighting",
-	POISON = "Poison",
-	GROUND = "Ground",
-	FLYING = "Flying",
-	PSYCHIC = "Psychic",
-	BUG = "Bug",
-	ROCK = "Rock",
-	GHOST = "Ghost",
-	DRAGON = "Dragon",
-	DARK = "Dark",
-	STEEL = "Steel",
-	FAIRY = "Fairy",
-}
+import mongoose from "mongoose";
+import { composeMongoose } from "graphql-compose-mongoose";
+import {
+	IPokemonStats,
+	IPokemonMove,
+	IPokemonMoves,
+	IPokemonAbilities,
+	IPokemonDamages,
+	IPokemonMisc,
+	IPokemon,
+	PokemonType,
+} from "../types/pokemon.type";
 
-export interface PokemonStats {
-	readonly hp: number;
-	readonly attack: string;
-	readonly defense: string;
-	readonly spattack: string;
-	readonly spdefense: string;
-	readonly speed: number;
-}
+const PokemonStatsSchema = new mongoose.Schema<IPokemonStats>(
+	{
+		hp: Number,
+		attack: String,
+		defense: String,
+		spattack: String,
+		spdefense: String,
+		speed: Number,
+	},
+	{ _id: false }
+);
 
-export interface PokemonMove {
-	readonly learnedat: string;
-	readonly name: string;
-}
+const PokemonMoveSchema = new mongoose.Schema<IPokemonMove>(
+	{
+		learnedat: String,
+		name: String,
+	},
+	{ _id: false }
+);
 
-export interface PokemonMoves {
-	readonly level: PokemonMove[];
-}
+const PokemonMovesSchema = new mongoose.Schema<IPokemonMoves>(
+	{
+		level: [PokemonMoveSchema],
+	},
+	{ _id: false }
+);
 
-export interface PokemonDamages {
-	readonly normal: string;
-	readonly fire: string;
-	readonly water: string;
-	readonly electric: string;
-	readonly grass: string;
-	readonly ice: string;
-	readonly fight: string;
-	readonly poison: string;
-	readonly ground: string;
-	readonly flying: string;
-	readonly psychic: string;
-	readonly bug: string;
-	readonly rock: string;
-	readonly ghost: string;
-	readonly dragon: string;
-	readonly dark: string;
-	readonly steel: string;
-}
+const PokemonAbilitiesSchema = new mongoose.Schema<IPokemonAbilities>(
+	{
+		normal: [{ type: String }],
+		hidden: [{ type: String }],
+	},
+	{ _id: false }
+);
 
-export interface PokemonAbilities {
-	readonly normal: string[];
-	readonly hidden: string[];
-}
+const PokemonDamagesSchema = new mongoose.Schema<IPokemonDamages>(
+	{
+		normal: String,
+		fire: String,
+		water: String,
+		electric: String,
+		grass: String,
+		ice: String,
+		fight: String,
+		poison: String,
+		ground: String,
+		flying: String,
+		psychic: String,
+		bug: String,
+		rock: String,
+		ghost: String,
+		dragon: String,
+		dark: String,
+		steel: String,
+	},
+	{ _id: false }
+);
 
-export interface PokemonMisc {
-	readonly abilities: PokemonAbilities;
-	readonly classification: string;
-	readonly height: string;
-	readonly weight: string;
-}
+const PokemonMiscSchema = new mongoose.Schema<IPokemonMisc>(
+	{
+		abilities: PokemonAbilitiesSchema,
+		classification: String,
+		height: String,
+		weight: String,
+	},
+	{ _id: false }
+);
 
-export interface Pokemon {
-	readonly id: number;
-	readonly name: string;
-	readonly img: string;
-	nickname: string;
-	readonly moves: PokemonMoves;
-	readonly damages: PokemonDamages;
-	readonly stats: PokemonStats;
-	readonly misc: PokemonMisc;
-	readonly type: PokemonType[];
-}
+const PokemonSchema = new mongoose.Schema<IPokemon>(
+	{
+		id: Number,
+		name: String,
+		img: String,
+		nickname: String,
+		moves: PokemonMovesSchema,
+		damages: PokemonDamagesSchema,
+		stats: PokemonStatsSchema,
+		misc: PokemonMiscSchema,
+		type: [
+			{
+				type: String,
+				enum: Object.values(PokemonType),
+			},
+		],
+	},
+	{
+		collection: "pokemon",
+		autoIndex: true,
+		minimize: true,
+	}
+);
+
+export const PokemonModel = mongoose.model<IPokemon>("Pokemon", PokemonSchema);
+export const PokemonTC = composeMongoose(PokemonModel);
