@@ -22,8 +22,5 @@ schemaComposer.Query.addFields({
 			},
 		}),
 });
-schemaComposer.Mutation.addFields({
-	pokemonUpdateById: PokemonTC.mongooseResolvers.updateById(),
-});
 
 export default schemaComposer.buildSchema();
